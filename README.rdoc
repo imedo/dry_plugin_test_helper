@@ -35,8 +35,7 @@ In your plugin test helper use these lines:
  require 'rubygems'
  require 'dry_plugin_test_helper'
 
- PluginTestEnvironment.init_env(File.dirname(__FILE__))
-
+ PluginTestEnvironment.initialize_environment(File.dirname(__FILE__))
 
 This sets up the test environment which means you have a stub rails app with 
 you plugin loaded and also the following models:
@@ -69,7 +68,7 @@ models if you need them.
 If you don't want the standard models (= database tables and fixtures) you can 
 initialize the test environment like this:
 
- PluginTestEnvironment.init_env(File.dirname(__FILE__), false)
+ PluginTestEnvironment.initialize_environment(File.dirname(__FILE__), :use_standard_migration => false)
 
 == TODO
 * support for RSpec and other testing frameworks (might already work - haven't tried it)
