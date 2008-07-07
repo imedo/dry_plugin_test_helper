@@ -26,7 +26,7 @@ download the source code and build the gem yourself
  $ git clone git://github.com/imedo/dry_plugin_test_helper.git
  $ cd dry_plugin_test_helper
  $ rake
- $ sudo gem install pkg/dry_plugin_test_helper-0.0.3.gem
+ $ sudo gem install pkg/dry_plugin_test_helper-0.0.4.gem
 
 == Usage
 
@@ -59,14 +59,19 @@ this:
    end
 
  end
+ 
+The database is automatically filled with the standard fixtures supplied by the gem. 
+If you want to use your own fixtures (e.g. if you use additionals models) create them
+in the test/fixtures directory of your plugin. Note that the standard fixtures won't
+get loaded if you use your own so you might have to add fixtures for the standard
+models if you need them.
 
-If you don't want the standard models you can initialize the test environment
-like this:
+If you don't want the standard models (= database tables and fixtures) you can 
+initialize the test environment like this:
 
  PluginTestEnvironment.init_env(File.dirname(__FILE__), false)
 
 == TODO
-* Tests for the test gem itself
 * support for RSpec and other testing frameworks (might already work - haven't tried it)
 * Automatic Rails version discovery
 * Clean up / strip down rails env to bare minimum

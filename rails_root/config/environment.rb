@@ -1,9 +1,8 @@
 # Specifies gem version of Rails to use when vendor/rails is not present
 #RAILS_GEM_VERSION = '1.1.6'
-RAILS_GEM_VERSION = '2.0.2' unless defined? RAILS_GEM_VERSION
+#RAILS_GEM_VERSION = '2.0.2' unless defined? RAILS_GEM_VERSION
 
 require File.join(File.dirname(__FILE__), 'boot')
-#require 'plugin_dependencies'
 
 Rails::Initializer.run do |config|
   config.logger = SilentLogger.new
@@ -11,7 +10,8 @@ Rails::Initializer.run do |config|
 
   config.cache_classes = false
   config.whiny_nils = true
-  #config.breakpoint_server = true
+
+  # This is the path to the plugin that we are testing
   config.load_paths << "#{File.dirname(__FILE__)}/../../../lib/"
 end
 

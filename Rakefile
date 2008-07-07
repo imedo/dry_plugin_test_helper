@@ -1,7 +1,8 @@
 require 'rubygems'
 Gem::manage_gems
 require 'rake/gempackagetask'
-require 'spec/rake/spectask'
+require 'rake/testtask'
+require 'rake/rdoctask'
  
 spec = eval(File.read('dry_plugin_test_helper.gemspec'))
  
@@ -9,6 +10,22 @@ Rake::GemPackageTask.new(spec) do |pkg|
     pkg.need_tar = true
 end
 
+desc 'Test the gem.'
+task :test do
+  Dir["test/*.rb"].each do |test|
+    puts `ruby #{test}`
+  end
+end
+
 task :default => "pkg/#{spec.name}-#{spec.version}.gem" do
-    puts "generated latest version"
+  puts "generated latest version"
+end
+
+desc 'Generate documentation for dry_plugin_test_helper.'
+Rake::RDocTask.new(:rdoc) do |rdoc|
+  rdoc.rdoc_dir = 'rdoc'
+  rdoc.title    = 'dry_plugin_test_helper'
+  rdoc.options << '--line-numbers' << '--inline-source'
+  rdoc.rdoc_files.include('README')
+  rdoc.rdoc_files.include('lib/**/*.rb')
 end

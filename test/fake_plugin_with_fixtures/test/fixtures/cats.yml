@@ -1,0 +1,9 @@
+ceiling_cat:
+  id: 1
+  name: "Ceiling cat"
+  lol_factor: 10
+happy_cat:
+  id: 2
+  name: "Happy cat"
+  lol_factor: 5
+    

@@ -2,11 +2,22 @@ class PluginTestEnvironment
   
   cattr_accessor :plugin_path
   
-  def self.init_env(dir, standard_migration = true)
-    self.plugin_path = "#{dir}/.."
+  # initializes the test environment
+  #
+  #
+  def self.initialize_environment(plugin_dir, options = {:use_standard_migration => true})
+    self.plugin_path = "#{plugin_dir}/.."
     require File.dirname(__FILE__) + '/../rails_root/config/environment.rb'
-    ActiveRecord::Migrator.migrate("#{RAILS_ROOT}/db/migrate") if standard_migration
+    ActiveRecord::Migrator.migrate("#{RAILS_ROOT}/db/migrate") if options[:use_standard_migration]
     plugin_migration
+  end
+
+  # initializes the test environment
+  #
+  # deprecated - use PluginTestEnvironment#initialize_environment instead
+  def self.init_env(plugin_dir, use_standard_migration = true)
+    puts "This method is deprecated please use PluginTestEnvironment#initialize_environment instead"
+    initialize_environment(plugin_dir, :use_standard_migration => use_standard_migration)
   end
   
   def self.fixture_path
@@ -22,13 +33,13 @@ class PluginTestEnvironment
   end
   
   def self.plugin_migration
-    begin
-      require "#{PluginTestEnvironment.plugin_path}/test/migration"
+    custom_migration = "#{PluginTestEnvironment.plugin_path}/test/migration.rb"
+    if File.exists?(custom_migration)
+      require custom_migration
       Migration.up
-    rescue LoadError
     end
-  end
-   
+  end 
+ 
  class Migration < ActiveRecord::Migration
     def self.setup(&block)
       self.class.send(:define_method, :up, &block)
