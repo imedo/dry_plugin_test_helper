@@ -7,6 +7,20 @@ class PluginTestEnvironment
   #
   def self.initialize_environment(plugin_dir, options = {:use_standard_migration => true})
     self.plugin_path = "#{plugin_dir}/.."
+    require File.dirname(__FILE__) + '/../rails_root/config/boot.rb'
+    
+    Rails::Initializer.run do |config|
+      config.logger = SilentLogger.new
+      config.log_level = :debug
+
+      config.cache_classes = false
+      config.whiny_nils = true
+
+      config.load_paths << "#{File.dirname(__FILE__)}/../../../lib/"
+      
+      yield config if block_given?
+    end
+    
     require File.dirname(__FILE__) + '/../rails_root/config/environment.rb'
     ActiveRecord::Migrator.migrate("#{RAILS_ROOT}/db/migrate") if options[:use_standard_migration]
     plugin_migration

@@ -4,17 +4,6 @@
 
 require File.join(File.dirname(__FILE__), 'boot')
 
-Rails::Initializer.run do |config|
-  config.logger = SilentLogger.new
-  config.log_level = :debug
-
-  config.cache_classes = false
-  config.whiny_nils = true
-
-  # This is the path to the plugin that we are testing
-  config.load_paths << "#{File.dirname(__FILE__)}/../../../lib/"
-end
-
 Dependencies.log_activity = false
 
 require 'test_help'
