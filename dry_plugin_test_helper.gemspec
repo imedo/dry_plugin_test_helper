@@ -7,7 +7,7 @@ Gem::Specification.new do |s|
   s.email     =   "hvolkmer@imedo.de"
   s.homepage  =   "http://opensource.imedo.de/"
   s.summary   =   "Providing dry standard test environment for Ruby on Rails plugins"
-  s.files     =    Dir["{bin,lib,rails_root,fixtures}/**/*"]
+  s.files     =    Dir.glob("{bin,lib,rails_root,fixtures}/**/*")
 
   s.autorequire = "active_record"
   s.has_rdoc = true
