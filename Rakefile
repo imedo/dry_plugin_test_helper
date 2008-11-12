@@ -29,3 +29,10 @@ Rake::RDocTask.new(:rdoc) do |rdoc|
   rdoc.rdoc_files.include('README.rdoc')
   rdoc.rdoc_files.include('lib/**/*.rb')
 end
+
+task :gemspec do
+  require 'erb'
+  File.open('dry_plugin_test_helper.gemspec', 'w') do |file|
+    file.puts ERB.new(File.read('dry_plugin_test_helper.gemspec.erb')).result
+  end
+end
