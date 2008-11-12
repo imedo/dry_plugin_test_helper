@@ -6,6 +6,14 @@ class PluginTestEnvironment
   #
   #
   def self.initialize_environment(plugin_dir, options = {:use_standard_migration => true})
+    if plugin_dir.nil?
+      plugin_dir ||= find_plugin_dir_by_caller
+    else
+      if plugin_dir.is_a?(Hash)
+        options = plugin_dir
+        plugin_dir = find_plugin_dir_by_caller
+      end
+    end
     self.plugin_path = File.join(plugin_dir, '..')
     require File.dirname(__FILE__) + '/../rails_root/config/boot.rb'
     
@@ -139,6 +147,11 @@ class PluginTestEnvironment
       Migration.up
     end
   end 
+  
+  def self.find_plugin_dir_by_caller
+    # 1 = two levels up => Where the env is initialized
+    File.dirname(caller[1].split(":").first)
+  end
  
  class Migration < ActiveRecord::Migration
     def self.setup(&block)

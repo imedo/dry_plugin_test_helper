@@ -12,7 +12,7 @@ end
 
 desc 'Test the gem.'
 task :test do
-  Dir["test/*.rb"].each do |test|
+  Dir["test/**/*_test.rb"].each do |test|
     puts `ruby #{test}`
   end
 end
