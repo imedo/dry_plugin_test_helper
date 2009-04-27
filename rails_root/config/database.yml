@@ -4,6 +4,9 @@ sqlite:
 sqlite3:
   :adapter: sqlite3
   :dbfile: ':memory:'
+test:
+  :adapter: sqlite3
+  :dbfile: ':memory:'
 postgresql:
   :adapter: postgresql
   :username: postgres
