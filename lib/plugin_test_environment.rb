@@ -7,7 +7,12 @@ class PluginTestEnvironment
   # initializes the test environment
   #
   #
-  def self.initialize_environment(plugin_dir, options = {:use_standard_migration => true})
+  def self.initialize_environment(plugin_dir, options = {})
+    default_options = {
+      :use_standard_migration => true
+    }
+    options = default_options.merge(options)
+    
     if plugin_dir.nil?
       plugin_dir ||= find_plugin_dir_by_caller
     else
