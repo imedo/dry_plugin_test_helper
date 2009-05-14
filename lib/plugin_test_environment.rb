@@ -1,6 +1,8 @@
 class PluginTestEnvironment
   
-  cattr_accessor :plugin_path
+  class << self
+    attr_accessor :plugin_path
+  end  
   
   # initializes the test environment
   #
@@ -14,8 +16,10 @@ class PluginTestEnvironment
         plugin_dir = find_plugin_dir_by_caller
       end
     end
+    
     self.plugin_path = File.join(plugin_dir, '..')
-    require File.dirname(__FILE__) + '/../rails_root/config/boot.rb'
+    require rails_root_dir(options[:rails_version]) + '/config/boot.rb'
+    require File.dirname(__FILE__) + '/silent_logger'
     
     Rails::Initializer.run do |config|
       config.logger = SilentLogger.new
@@ -29,8 +33,8 @@ class PluginTestEnvironment
       yield config if block_given?
     end
     
-    require File.dirname(__FILE__) + '/../rails_root/config/environment.rb'
-
+    require rails_root_dir(options[:rails_version]) + '/config/environment.rb'
+    
     Test::Unit::TestCase.class_eval do
       cattr_accessor :rails_root
       self.rails_root = PluginTestEnvironment.plugin_path
@@ -40,6 +44,35 @@ class PluginTestEnvironment
     
     ActiveRecord::Migrator.migrate("#{RAILS_ROOT}/db/migrate") if options[:use_standard_migration]
     plugin_migration
+  end
+  
+  def self.rails_root_dir(rails_version)
+    rails_dir = File.join(test_helper_base_dir, "#{rails_version || latest_rails_version}/")
+    init_environment(rails_version || latest_rails_version) unless File.exists?(rails_dir)
+    rails_dir
+  end
+  
+  def self.test_helper_base_dir
+    File.join(ENV['HOME'], ".dry_plugin_test_helper")
+  end
+  
+  def self.latest_rails_version
+    Gem.cache.find_name(/^rails$/).map { |g| g.version.version }.last
+  end
+  
+  def self.init_environment(rails_version)
+    target_directory = File.join(test_helper_base_dir, rails_version)
+    FileUtils.mkdir_p target_directory
+    system("rails _#{rails_version}_ #{File.expand_path(target_directory)}")
+    FileUtils.cp_r File.dirname(__FILE__) + '/../rails_root_fixtures/app/models', target_directory + '/app'
+    FileUtils.cp_r File.dirname(__FILE__) + '/../rails_root_fixtures/db/migrate', target_directory + '/db'
+    FileUtils.cp_r File.dirname(__FILE__) + '/../rails_root_fixtures/vendor/plugins/plugin_to_test', target_directory + '/vendor/plugins/'
+    FileUtils.cp File.dirname(__FILE__) + '/../rails_root_fixtures/config/database.yml', target_directory + '/config/database.yml'
+  end
+  
+  def self.remove_environment_for_rails_version(version)
+    dir = File.join(test_helper_base_dir, version)
+    FileUtils.rm_r(dir) if File.exists?(dir)
   end
   
   def self.initialize_engines_environment(plugin_dir, options = {:use_standard_migration => true})
@@ -143,6 +176,12 @@ class PluginTestEnvironment
   def self.plugin_migration
     custom_migration = "#{PluginTestEnvironment.plugin_path}/test/migration.rb"
     if File.exists?(custom_migration)
+      self.const_set(:Migration, Class.new(ActiveRecord::Migration))
+      Migration.class_eval do
+        def self.setup(&block)
+          self.class.send(:define_method, :up, &block)
+        end
+      end
       require custom_migration
       Migration.up
     end
@@ -151,12 +190,6 @@ class PluginTestEnvironment
   def self.find_plugin_dir_by_caller
     # 1 = two levels up => Where the env is initialized
     File.dirname(caller[1].split(":").first)
-  end
- 
- class Migration < ActiveRecord::Migration
-    def self.setup(&block)
-      self.class.send(:define_method, :up, &block)
-    end
   end
  
 end

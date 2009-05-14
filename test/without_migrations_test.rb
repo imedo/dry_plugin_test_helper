@@ -1,5 +1,6 @@
 require File.dirname(__FILE__) + '/../lib/dry_plugin_test_helper'
 
+PluginTestEnvironment.remove_environment_for_rails_version(PluginTestEnvironment.latest_rails_version)
 PluginTestEnvironment.initialize_environment(File.dirname(__FILE__) + "/fake_plugin/test/", :use_standard_migration => false)
 
 class WithMigrationsTest < Test::Unit::TestCase

@@ -1,0 +1,12 @@
+dbsetup: &in_memory
+  :adapter: sqlite3
+  :dbfile: ':memory:'
+  
+development:
+   <<: *in_memory
+
+test:
+   <<: *in_memory
+
+production:
+   <<: *in_memory

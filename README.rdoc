@@ -9,7 +9,7 @@ Bugs::      No dedicated bug tracker yet - Email us or just send pull requests
 Makes your plugin tests dry and isolates plugin tests from you real app.
 
 == Dependencies
-* Rails 2.0.2 (should work also with 1.2)
+* Rails > 2.0.2 (should work also with 1.2)
 * sqlite3 - http://www.sqlite.org/
 
 == Installation
@@ -26,7 +26,7 @@ download the source code and build the gem yourself
  $ git clone git://github.com/imedo/dry_plugin_test_helper.git
  $ cd dry_plugin_test_helper
  $ rake
- $ sudo gem install pkg/dry_plugin_test_helper-0.0.4.gem
+ $ sudo gem install pkg/dry_plugin_test_helper-0.0.7.gem
 
 == Usage
 
@@ -37,8 +37,7 @@ In your plugin test helper use these lines:
 
  PluginTestEnvironment.initialize_environment(File.dirname(__FILE__))
 
-This sets up the test environment which means you have a stub rails app with 
-you plugin loaded and also the following models:
+This sets up the test environment in $HOME/.dry_plugin_test_helper/2.3/ (for Rails 2.3) which means you have a stub rails app with you plugin loaded and also the following models:
 
 * Article: belongs_to :author, has_many   :comments
 * Author: has_many :articles
@@ -70,7 +69,7 @@ initialize the test environment like this:
 
  PluginTestEnvironment.initialize_environment(File.dirname(__FILE__), :use_standard_migration => false)
 
+
 == TODO
 * support for RSpec and other testing frameworks (might already work - haven't tried it)
 * Automatic Rails version discovery
-* Clean up / strip down rails env to bare minimum
