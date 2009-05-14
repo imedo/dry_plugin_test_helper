@@ -28,12 +28,8 @@ class PluginTestEnvironment
       config.cache_classes = false
       config.whiny_nils = true
 
-      config.load_paths << "#{File.dirname(__FILE__)}/../../../lib/"
-      
       yield config if block_given?
     end
-    
-    require rails_root_dir(options[:rails_version]) + '/config/environment.rb'
     
     Test::Unit::TestCase.class_eval do
       cattr_accessor :rails_root
@@ -46,10 +42,14 @@ class PluginTestEnvironment
     plugin_migration
   end
   
+  def self.rails_dir(rails_version)
+    File.join(test_helper_base_dir, "#{rails_version || latest_rails_version}/")
+  end
+  
   def self.rails_root_dir(rails_version)
-    rails_dir = File.join(test_helper_base_dir, "#{rails_version || latest_rails_version}/")
-    init_environment(rails_version || latest_rails_version) unless File.exists?(rails_dir)
-    rails_dir
+    target_directory = rails_dir(rails_version)
+    init_environment(rails_version || latest_rails_version) unless File.exists?(target_directory)
+    target_directory
   end
   
   def self.test_helper_base_dir
@@ -61,10 +61,12 @@ class PluginTestEnvironment
   end
   
   def self.init_environment(rails_version)
-    target_directory = File.join(test_helper_base_dir, rails_version)
+    target_directory = rails_dir(rails_version)
     FileUtils.mkdir_p target_directory
     system("rails _#{rails_version}_ #{File.expand_path(target_directory)}")
+    FileUtils.rm target_directory + '/app/helpers/application_helper.rb'
     FileUtils.cp_r File.dirname(__FILE__) + '/../rails_root_fixtures/app/models', target_directory + '/app'
+    FileUtils.cp_r File.dirname(__FILE__) + '/../rails_root_fixtures/app/controllers', target_directory + '/app'
     FileUtils.cp_r File.dirname(__FILE__) + '/../rails_root_fixtures/db/migrate', target_directory + '/db'
     FileUtils.cp_r File.dirname(__FILE__) + '/../rails_root_fixtures/vendor/plugins/plugin_to_test', target_directory + '/vendor/plugins/'
     FileUtils.cp File.dirname(__FILE__) + '/../rails_root_fixtures/config/database.yml', target_directory + '/config/database.yml'
