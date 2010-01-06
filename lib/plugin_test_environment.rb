@@ -1,8 +1,12 @@
+require File.dirname(__FILE__) + '/version'
+
 class PluginTestEnvironment
+  include DryPluginTestHelper
   
   class << self
     attr_accessor :plugin_path
-  end  
+    attr_accessor :rails_version
+  end
   
   # initializes the test environment
   #
@@ -23,7 +27,9 @@ class PluginTestEnvironment
     end
     
     self.plugin_path = File.join(plugin_dir, '..')
-    require rails_root_dir(options[:rails_version]) + '/config/boot.rb'
+    self.rails_version = Version.new(options[:rails_version] || self.latest_rails_version)
+    
+    require rails_root_dir + '/config/boot.rb'
     require File.dirname(__FILE__) + '/silent_logger'
     
     Rails::Initializer.run do |config|
@@ -36,7 +42,7 @@ class PluginTestEnvironment
       yield config if block_given?
     end
     
-    Test::Unit::TestCase.class_eval do
+    base_test_case_class.class_eval do
       cattr_accessor :rails_root
       self.rails_root = PluginTestEnvironment.plugin_path
     end
@@ -47,13 +53,23 @@ class PluginTestEnvironment
     plugin_migration
   end
   
-  def self.rails_dir(rails_version)
-    File.join(test_helper_base_dir, "#{rails_version || latest_rails_version}/")
+  def self.base_test_case_class
+    @base_test_case_class ||= if rails_version < Version.new('2.3.0')
+      Test::Unit::TestCase
+    else
+      require 'active_support/test_case'
+      
+      ActiveSupport::TestCase
+    end
   end
   
-  def self.rails_root_dir(rails_version)
-    target_directory = rails_dir(rails_version)
-    init_environment(rails_version || latest_rails_version) unless File.exists?(target_directory)
+  def self.rails_dir
+    File.join(test_helper_base_dir, "#{rails_version}/")
+  end
+  
+  def self.rails_root_dir
+    target_directory = rails_dir
+    init_environment unless File.exists?(target_directory)
     target_directory
   end
   
@@ -65,8 +81,8 @@ class PluginTestEnvironment
     Gem.cache.find_name(/^rails$/).map { |g| g.version.version }.last
   end
   
-  def self.init_environment(rails_version)
-    target_directory = rails_dir(rails_version)
+  def self.init_environment
+    target_directory = rails_dir
     FileUtils.mkdir_p target_directory
     system("rails _#{rails_version}_ #{File.expand_path(target_directory)}")
     FileUtils.rm target_directory + '/app/helpers/application_helper.rb'
@@ -143,15 +159,15 @@ class PluginTestEnvironment
   def self.initialize_fixtures
     require 'test_help'
 
-    Test::Unit::TestCase.fixture_path = PluginTestEnvironment.fixture_path
-    $LOAD_PATH.unshift(Test::Unit::TestCase.fixture_path)
+    base_test_case_class.fixture_path = PluginTestEnvironment.fixture_path
+    $LOAD_PATH.unshift(base_test_case_class.fixture_path)
 
-    Test::Unit::TestCase.class_eval do
+    base_test_case_class.class_eval do
       def create_fixtures(*table_names)
         if block_given?
-          Fixtures.create_fixtures(Test::Unit::TestCase.fixture_path, table_names) { yield }
+          Fixtures.create_fixtures(base_test_case_class.fixture_path, table_names) { yield }
         else
-          Fixtures.create_fixtures(Test::Unit::TestCase.fixture_path, table_names)
+          Fixtures.create_fixtures(base_test_case_class.fixture_path, table_names)
         end
       end
 
