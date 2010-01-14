@@ -20,6 +20,10 @@ task :default => "pkg/#{spec.name}-#{spec.version}.gem" do
   puts "generated latest version"
 end
 
+task :install => "pkg/#{spec.name}-#{spec.version}.gem" do
+  sh "gem install pkg/#{spec.name}-#{spec.version}.gem"
+end
+
 desc 'Generate documentation for dry_plugin_test_helper.'
 Rake::RDocTask.new(:rdoc) do |rdoc|
   rdoc.rdoc_dir = 'rdoc'

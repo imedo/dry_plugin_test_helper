@@ -39,9 +39,11 @@ class PluginTestEnvironment
       config.cache_classes = false
       config.whiny_nils = true
 
+      config.i18n.load_path << Dir["#{plugin_path}/locales/**/*.{yml,rb}"] if self.i18n_enabled?
+
       yield config if block_given?
     end
-    
+
     base_test_case_class.class_eval do
       cattr_accessor :rails_root
       self.rails_root = PluginTestEnvironment.plugin_path
@@ -215,4 +217,7 @@ class PluginTestEnvironment
     File.dirname(caller[1].split(":").first)
   end
  
+  def self.i18n_enabled?
+    Version.new('2.2.0') < self.rails_version
+  end
 end
