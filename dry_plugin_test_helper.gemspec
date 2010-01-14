@@ -2,7 +2,7 @@ Gem::Specification.new do |s|
   s.platform  =   Gem::Platform::RUBY
   s.name      =   "dry_plugin_test_helper"
   s.version   =   "0.0.10"
-  s.date      =   "2010-01-06"
+  s.date      =   "2010-01-14"
   s.author    =   "Hendrik Volkmer"
   s.email     =   "hvolkmer@imedo.de"
   s.homepage  =   "http://opensource.imedo.de/"
