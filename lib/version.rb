@@ -17,6 +17,7 @@ module DryPluginTestHelper
     def <(other)
       version_array.each_with_index do |part, i|
         return true if part < other.version_array[i]
+        return false if other.version_array[i] < part
       end
       false
     end
