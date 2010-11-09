@@ -1,7 +1,7 @@
 = dry_plugin_test
 
 Author::    Hendrik Volkmer  - hvolkmer (at) imedo.de
-Copyright:: Copyright (c) 2008 imedo GmbH
+Copyright:: Copyright (c) 2008-2010 imedo GmbH
 Licence::   MIT
 Git::       http://github.com/imedo/dry_plugin_test_helper
 Bugs::      No dedicated bug tracker yet - Email us or just send pull requests 
@@ -9,24 +9,17 @@ Bugs::      No dedicated bug tracker yet - Email us or just send pull requests
 Makes your plugin tests dry and isolates plugin tests from you real app.
 
 == Dependencies
-* Rails > 2.0.2 (should work also with 1.2)
+* Rails > 2.0.2
 * sqlite3 - http://www.sqlite.org/
 
 == Installation
 
-The easiest way to install this gem is directly via the github gem 
-repository:
-
- $ sudo gem install imedo-dry_plugin_test_helper -s http://gems.github.com
-
-Or
-
-download the source code and build the gem yourself
+Download the source code and build the gem yourself
 
  $ git clone git://github.com/imedo/dry_plugin_test_helper.git
  $ cd dry_plugin_test_helper
  $ rake
- $ sudo gem install pkg/dry_plugin_test_helper-0.0.7.gem
+ $ sudo gem install pkg/dry_plugin_test_helper-0.0.11.gem
 
 == Usage
 
@@ -45,6 +38,10 @@ This sets up the test environment in $HOME/.dry_plugin_test_helper/2.3/ (for Rai
 * User: has_many :comments
 
 The models will be added to a sqlite in memory database for fast testing.
+
+If you have more then one Rails version installed, you can specify the version to use using the :rails_version Option like this:
+
+  PluginTestEnvironment.initialize_environment(File.dirname(__FILE__), :rails_version => '2.3.3')
 
 You can add your own models using a migration in your test directory like 
 this:
@@ -68,8 +65,3 @@ If you don't want the standard models (= database tables and fixtures) you can
 initialize the test environment like this:
 
  PluginTestEnvironment.initialize_environment(File.dirname(__FILE__), :use_standard_migration => false)
-
-
-== TODO
-* support for RSpec and other testing frameworks (might already work - haven't tried it)
-* Automatic Rails version discovery
