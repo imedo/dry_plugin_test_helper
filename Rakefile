@@ -35,6 +35,7 @@ end
 
 task :gemspec do
   require 'erb'
+  require 'date'
   File.open('dry_plugin_test_helper.gemspec', 'w') do |file|
     file.puts ERB.new(File.read('dry_plugin_test_helper.gemspec.erb')).result
   end
