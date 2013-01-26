@@ -1,4 +1,5 @@
 require 'dry_plugin_test_helper/version'
+require 'fileutils'
 
 class PluginTestEnvironment
   include DryPluginTestHelper
