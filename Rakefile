@@ -1,12 +1,12 @@
 require 'rubygems'
-require 'rake/gempackagetask'
+require 'rubygems/package_task'
 require 'rake/testtask'
 require 'rake/rdoctask'
  
 spec = eval(File.read('dry_plugin_test_helper.gemspec'))
  
-Rake::GemPackageTask.new(spec) do |pkg|
-    pkg.need_tar = true
+Gem::PackageTask.new(spec) do |pkg|
+  pkg.need_tar = true
 end
 
 desc 'Test the gem.'
