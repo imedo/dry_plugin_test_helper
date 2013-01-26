@@ -1,4 +1,6 @@
 require 'dry_plugin_test_helper/version'
+require 'rubygems'
+require 'bundler'
 require 'fileutils'
 
 class PluginTestEnvironment
@@ -30,7 +32,16 @@ class PluginTestEnvironment
     self.plugin_path = File.join(plugin_dir, '..')
     self.rails_version = Version.new(options[:rails_version] || self.latest_rails_version)
 
-    require rails_root_dir + '/config/boot.rb'
+    begin
+      require rails_root_dir + '/config/boot.rb'
+    rescue LoadError => e
+      fail "Rails could not be started (#{e}) Perhaps try reinstalling?"
+      exit
+    rescue => e
+      fail "ERROR: #{e}"
+      exit
+    end
+
     require 'dry_plugin_test_helper/silent_logger'
 
     Rails::Initializer.run do |config|
@@ -81,19 +92,67 @@ class PluginTestEnvironment
   end
 
   def self.latest_rails_version
-    Gem.cache.find_name(/^rails$/).map { |g| g.version.version }.last
+    # FIXME: hardcode for now. RubyGems code broken.
+    '2.3.11'
   end
 
   def self.init_environment
     target_directory = rails_dir
     FileUtils.mkdir_p target_directory
-    system("rails _#{rails_version}_ #{File.expand_path(target_directory)}")
+
+    puts "Creating a new Rails (#{rails_version}) application…"
+    Bundler.with_clean_env do
+      `rails _#{rails_version}_ #{File.expand_path(target_directory)}`
+    end
+    raise 'Not able to create a Rails application' unless $?.success?
+
+    # gemfile = <<-GEMFILE
+    # source :rubygems
+    #
+    # gem 'rails', '= #{rails_version}'
+    # GEMFILE
+
+    rails_boot_rb = <<-RUBY
+    class Rails::Boot
+      def run
+        load_initializer
+
+        Rails::Initializer.class_eval do
+          def load_gems
+            @bundler_loaded ||= Bundler.require :default, Rails.env
+          end
+        end
+
+        Rails::Initializer.run(:set_load_path)
+      end
+    end
+    RUBY
+
+    # Dir.chdir(target_directory) do
+    #   File.open('Gemfile', 'w') do |file|
+    #     file.write(gemfile)
+    #   end
+    #   puts `bundle install`
+    # end
     FileUtils.rm target_directory + '/app/helpers/application_helper.rb'
     FileUtils.cp_r File.dirname(__FILE__) + '/../rails_root_fixtures/app/models', target_directory + '/app'
     FileUtils.cp_r File.dirname(__FILE__) + '/../rails_root_fixtures/app/controllers', target_directory + '/app'
     FileUtils.cp_r File.dirname(__FILE__) + '/../rails_root_fixtures/db/migrate', target_directory + '/db'
     FileUtils.cp_r File.dirname(__FILE__) + '/../rails_root_fixtures/vendor/plugins/plugin_to_test', target_directory + '/vendor/plugins/'
     FileUtils.cp File.dirname(__FILE__) + '/../rails_root_fixtures/config/database.yml', target_directory + '/config/database.yml'
+    FileUtils.cp File.dirname(__FILE__) + '/../rails_root_fixtures/config/preinitializer.rb', target_directory + '/config/preinitializer.rb'
+
+    Dir.chdir(target_directory) do
+      File.open('config/boot.rb', 'r+') do |file|
+        contents = file.read
+        index    = contents.index('Rails.boot!')
+        contents.insert(index - 1, "\n#{rails_boot_rb}\n")
+        file.write(contents)
+      end
+    end
+
+    puts 'Creation of new Rails application complete.'
+    true
   end
 
   def self.remove_environment_for_rails_version(version)
