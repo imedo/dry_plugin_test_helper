@@ -1,3 +1,5 @@
+require 'logger'
+
 class SilentLogger < Logger
 
   def initialize
