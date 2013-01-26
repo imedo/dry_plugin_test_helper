@@ -4,7 +4,7 @@ PluginTestEnvironment.remove_environment_for_rails_version(PluginTestEnvironment
 PluginTestEnvironment.initialize_environment(File.dirname(__FILE__) + "/fake_plugin/test/", :use_standard_migration => false)
 
 class WithMigrationsTest < Test::Unit::TestCase
-    
+
   def test_loading_without_standard_tables
     begin
       Article.count
@@ -12,5 +12,5 @@ class WithMigrationsTest < Test::Unit::TestCase
       assert_equal "Could not find table 'articles'", e.message
     end
   end
-  
+
 end

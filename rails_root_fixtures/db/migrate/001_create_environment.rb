@@ -21,9 +21,9 @@ class CreateEnvironment < ActiveRecord::Migration
 
     create_table :users do |t|
       t.column :name, :string
-    end  
+    end
   end
-  
+
   def self.down
     drop_table :articles
     drop_table :authors

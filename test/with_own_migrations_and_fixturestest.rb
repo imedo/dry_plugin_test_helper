@@ -4,9 +4,9 @@ PluginTestEnvironment.remove_environment_for_rails_version(PluginTestEnvironment
 PluginTestEnvironment.initialize_environment(File.dirname(__FILE__) + "/fake_plugin_with_fixtures/test/", :use_standard_migration => false)
 
 class WithOwnMigrationsAndFixturesTest < Test::Unit::TestCase
-  
+
   fixtures :cats
-  
+
   def test_loading_of_fixtures
     assert_equal 2, Cat.count
   end
