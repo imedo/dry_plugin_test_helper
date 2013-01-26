@@ -1,4 +1,4 @@
-require File.dirname(__FILE__) + '/version'
+require 'dry_plugin_test_helper/version'
 
 class PluginTestEnvironment
   include DryPluginTestHelper
@@ -30,7 +30,7 @@ class PluginTestEnvironment
     self.rails_version = Version.new(options[:rails_version] || self.latest_rails_version)
 
     require rails_root_dir + '/config/boot.rb'
-    require File.dirname(__FILE__) + '/silent_logger'
+    require 'dry_plugin_test_helper/silent_logger'
 
     Rails::Initializer.run do |config|
       config.logger = SilentLogger.new
